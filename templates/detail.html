@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ cactus.name }}
+{% endblock %}
+
+{% block content %}
+  <a href="{{ url_for('index') }}">Вернуться к списку</a>
+  <h1>{{ cactus.name }}</h1>
+  <p>{{ cactus.description }}</p>
+{% endblock %}
