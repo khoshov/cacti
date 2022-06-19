@@ -7,14 +7,25 @@
 {% block content %}
   <h1>Добро пожаловать!<br> Подборка самых вкусных и полезных кактусов</h1>
 
+  <form method="GET" action="/">
+    <select class="form-select mb-3" aria-label="difficulty" name="difficulty">
+      <option value {% if not request.args.get('difficulty') %}selected{% endif %}>Любой</option>
+      {% for option in difficulty %}
+        <option value="{{ option[0] }}" {% if request.args.get('difficulty') == option[0] %}selected{% endif %}>{{ option[1] }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary mb-3">Применить</button>
+  </form>
+
+  <h3>Список всех кактусов</h3>
   <div class="row">
-    {% for cactus in cacti * 10 %}
+    {% for cactus in cacti %}
       <div class="col-lg-4 col-md-6 col-sm-12 mt-3">
         <div class="card">
           <img src="{{ url_for('static', filename=thumbnail(cactus.image)) }}" class="card-img-top" alt="{{ cactus.name }}">
           <div class="card-body">
             <h5 class="card-title">{{ cactus.name }}</h5>
-            <p class="card-text">{{ cactus.description|truncate(64) }}</p>
+            <p class="card-text">{{ cactus.description|truncate(64)|safe }}</p>
             <a href="{{ url_for('detail', pk=cactus.id) }}" class="btn btn-primary">Подробнее</a>
           </div>
         </div>

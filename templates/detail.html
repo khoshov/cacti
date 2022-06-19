@@ -7,6 +7,9 @@
 {% block content %}
   <a href="{{ url_for('index') }}">Вернуться к списку</a>
   <h1>{{ cactus.name }}</h1>
+  <h3>Сложность выраживания</h3>
+  <p>{{ cactus.difficulty.value }}</p>
+  <h3>Описание</h3>
   <p>{{ cactus.description }}</p>
 
   <h2>Обратите внимание на эти товары</h2>

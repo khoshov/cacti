@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, request, url_for
 from flask_admin import Admin, form
 from flask_admin.contrib.sqla import ModelView
 from flask_migrate import Migrate
@@ -31,9 +31,9 @@ class Cactus(db.Model):
     MEDIUM = 'Средняя'
     HIGH = 'Высокая'
     DIFFICULTY = (
-        (1, LOW),
-        (2, MEDIUM),
-        (3, HIGH),
+        ('1', LOW),
+        ('2', MEDIUM),
+        ('3', HIGH),
     )
 
     id = db.Column(db.Integer, primary_key=True)
@@ -107,8 +107,19 @@ admin.add_view(CustomModelView(RelatedProduct, db.session))
 
 @app.route('/')
 def index():
-    cacti = Cactus.query.all()
-    return render_template('index.html', cacti=cacti, thumbnail=form.thumbgen_filename)
+    difficulty = request.args.get('difficulty')
+
+    if difficulty:
+        cacti = Cactus.query.filter_by(difficulty=difficulty).all()
+    else:
+        cacti = Cactus.query.all()
+
+    return render_template(
+        'index.html',
+        cacti=cacti,
+        difficulty=Cactus.DIFFICULTY,
+        thumbnail=form.thumbgen_filename,
+    )
 
 
 @app.route('/route/<int:pk>')
