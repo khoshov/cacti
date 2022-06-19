@@ -6,6 +6,10 @@ from flask_admin.contrib.sqla import ModelView
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from markupsafe import Markup
+from sqlalchemy_utils import ChoiceType
+from werkzeug.exceptions import NotFound
+from wtforms import TextAreaField
+from wtforms.widgets import TextArea
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -23,16 +27,53 @@ except OSError:
 
 
 class Cactus(db.Model):
+    LOW = 'Низкая'
+    MEDIUM = 'Средняя'
+    HIGH = 'Высокая'
+    DIFFICULTY = (
+        (1, LOW),
+        (2, MEDIUM),
+        (3, HIGH),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.Text(), nullable=False)
     image = db.Column(db.Unicode(128), nullable=False)
+    difficulty = db.Column(ChoiceType(DIFFICULTY), nullable=True)
+    products = db.relationship('RelatedProduct', backref='cactus', lazy=True)
 
     def __repr__(self):
         return '<Cactus %r>' % self.name
 
 
-class CactusModelView(ModelView):
+class RelatedProduct(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.Text(), nullable=False)
+    image = db.Column(db.Unicode(128), nullable=False)
+    cactus_id = db.Column(db.Integer, db.ForeignKey('cactus.id'), nullable=False)
+
+    def __repr__(self):
+        return '<RelatedProduct %r>' % self.name
+
+
+class CKTextAreaWidget(TextArea):
+    def __call__(self, field, **kwargs):
+        if kwargs.get('class'):
+            kwargs['class'] += ' ckeditor'
+        else:
+            kwargs.setdefault('class', 'ckeditor')
+        return super(CKTextAreaWidget, self).__call__(field, **kwargs)
+
+
+class CKTextAreaField(TextAreaField):
+    widget = CKTextAreaWidget()
+
+
+class CustomModelView(ModelView):
+    extra_js = ['//cdn.ckeditor.com/4.6.0/standard/ckeditor.js']
+
     def _list_thumbnail(view, context, model, name):
         if not model.path:
             return ''
@@ -54,9 +95,14 @@ class CactusModelView(ModelView):
         )
     }
 
+    form_overrides = {
+        'description': CKTextAreaField,
+    }
+
 
 admin = Admin(app, name='cacti', template_mode='bootstrap3')
-admin.add_view(CactusModelView(Cactus, db.session))
+admin.add_view(CustomModelView(Cactus, db.session))
+admin.add_view(CustomModelView(RelatedProduct, db.session))
 
 
 @app.route('/')
@@ -65,9 +111,11 @@ def index():
     return render_template('index.html', cacti=cacti, thumbnail=form.thumbgen_filename)
 
 
-@app.route('/cacti/<int:pk>')
+@app.route('/route/<int:pk>')
 def detail(pk):
     cactus = Cactus.query.filter_by(id=pk).first()
+    if not cactus:
+        raise NotFound
     return render_template('detail.html', cactus=cactus)
 
 

@@ -8,13 +8,13 @@
   <h1>Добро пожаловать!<br> Подборка самых вкусных и полезных кактусов</h1>
 
   <div class="row">
-    {% for cactus in cacti %}
-      <div class="col-3 mt-3">
+    {% for cactus in cacti * 10 %}
+      <div class="col-lg-4 col-md-6 col-sm-12 mt-3">
         <div class="card">
           <img src="{{ url_for('static', filename=thumbnail(cactus.image)) }}" class="card-img-top" alt="{{ cactus.name }}">
           <div class="card-body">
             <h5 class="card-title">{{ cactus.name }}</h5>
-            {#    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>#}
+            <p class="card-text">{{ cactus.description|truncate(64) }}</p>
             <a href="{{ url_for('detail', pk=cactus.id) }}" class="btn btn-primary">Подробнее</a>
           </div>
         </div>

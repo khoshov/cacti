@@ -8,4 +8,24 @@
   <a href="{{ url_for('index') }}">Вернуться к списку</a>
   <h1>{{ cactus.name }}</h1>
   <p>{{ cactus.description }}</p>
+
+  <h2>Обратите внимание на эти товары</h2>
+  <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Наименование</th>
+      <th scope="col">Описание</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for product in cactus.products %}
+      <tr>
+        <th scope="row">{{ product.id }}</th>
+        <td>{{ product.name }}</td>
+        <td>{{ product.description|truncate(64)|safe }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
