@@ -4,13 +4,17 @@
   {{ cactus.name }}
 {% endblock %}
 
+{% block styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+{% endblock %}
+
 {% block content %}
   <a href="{{ url_for('index') }}">Вернуться к списку</a>
   <h1>{{ cactus.name }}</h1>
   <h3>Сложность выраживания</h3>
   <p>{{ cactus.difficulty.value }}</p>
   <h3>Описание</h3>
-  <p>{{ cactus.description }}</p>
+  <p>{{ cactus.description|safe }}</p>
 
   <h2>Обратите внимание на эти товары</h2>
   <table class="table">
@@ -31,4 +35,8 @@
     {% endfor %}
     </tbody>
   </table>
+{% endblock %}
+{% block script %}
+  <script async charset="utf-8" src="//cdn.embedly.com/widgets/platform.js"></script>
+  <script src="{{ url_for('static', filename='js/detail.js') }}"></script>
 {% endblock %}

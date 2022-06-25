@@ -72,7 +72,7 @@ class CKTextAreaField(TextAreaField):
 
 
 class CustomModelView(ModelView):
-    extra_js = ['//cdn.ckeditor.com/4.6.0/standard/ckeditor.js']
+    extra_js = ['/static/js/ckeditor.js', '/static/js/admin.js']
 
     def _list_thumbnail(view, context, model, name):
         if not model.path:
