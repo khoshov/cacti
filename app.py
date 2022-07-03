@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, jsonify, render_template, request, url_for
+from flask import Flask, jsonify, render_template, request, send_from_directory, url_for
 from flask_admin import Admin, form
 from flask_admin.contrib.sqla import ModelView
 from flask_migrate import Migrate
@@ -15,11 +15,12 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 app.config['SECRET_KEY'] = 'So secret such key'
+# app.config['UPLOAD_FOLDER'] = 'media'
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-file_path = os.path.join(os.path.dirname(__file__), 'static')
+file_path = os.path.join(os.path.dirname(__file__), 'static', 'media')
 try:
     os.mkdir(file_path)
 except OSError:
@@ -42,6 +43,11 @@ class Cactus(db.Model):
     image = db.Column(db.Unicode(128), nullable=False)
     difficulty = db.Column(ChoiceType(DIFFICULTY), nullable=True)
     products = db.relationship('RelatedProduct', backref='cactus', lazy=True)
+
+    @property
+    def image_path(self):
+        return f'media/{form.thumbgen_filename(self.image)}'
+
 
     def __repr__(self):
         return '<Cactus %r>' % self.name
@@ -101,6 +107,7 @@ class CustomModelView(ModelView):
         'image': form.ImageUploadField(
             'Image',
             base_path=file_path,
+            url_relative_path='media/',
             thumbnail_size=(320, 320, True),
         )
     }
@@ -128,7 +135,6 @@ def index():
         'index.html',
         cacti=cacti,
         difficulty=Cactus.DIFFICULTY,
-        thumbnail=form.thumbgen_filename,
     )
 
 
@@ -172,7 +178,6 @@ def create_cactus_likes():
 #     if request.method == 'POST':
 #         data = request.form
 #         print(data)
-#         return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

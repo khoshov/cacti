@@ -22,7 +22,7 @@
     {% for cactus in cacti %}
       <div class="col-lg-4 col-md-6 col-sm-12 mt-3">
         <div class="card">
-          <img src="{{ url_for('static', filename=thumbnail(cactus.image)) }}" class="card-img-top" alt="{{ cactus.name }}">
+          <img src="{{ url_for('static', filename=cactus.image_path) }}" class="card-img-top" alt="{{ cactus.name }}">
           <div class="card-body">
             <h5 class="card-title">{{ cactus.name }}</h5>
             <p class="card-text">{{ cactus.description|truncate(64)|safe }}</p>
